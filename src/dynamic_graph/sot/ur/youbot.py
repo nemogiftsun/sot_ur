@@ -135,9 +135,7 @@ def addTrace(device, trace, entityName, signalName, autoRecompute = True):
 # Create task for the waist
 
 
-robot_pose = ((1.,0,0,0),(0,1.,0,0),(0,0,1.,0),(0,0,0,1.),)
-
-	
+robot_pose = ((1.,0,0,500),(0,1.,0,0),(0,0,1.,0),(0,0,0,1.),)	
 feature_waist = FeaturePosition ('position_waist', robot.dynamic.base_joint, robot.dynamic.Jbase_joint, robot_pose)
 feature_waist.selec.value = '001110'
 task_waist = Task ('waist_task')
@@ -176,6 +174,35 @@ robot.device.after.addSignal('{0}.triger'.format(tracer.name))
 addTrace (robot.device, tracer, robot.device.name, "state")
 addTrace (robot.device, tracer, feature_wrist._feature.name, "position")
 addTrace (robot.device, tracer, feature_wrist._reference.name, "position")
+
+example code
+
+from dynamic_graph.sot.youbot.robot import youbot
+from dynamic_graph.ros.robot_model import RosRobotModel
+from dynamic_graph.sot.core import RobotSimu, FeaturePosition, Task, SOT
+from dynamic_graph.sot.core.meta_tasks import generic6dReference
+from dynamic_graph.sot.core.matrix_util import matrixToTuple
+from dynamic_graph import plug, writeGraph
+from dynamic_graph.sot.core.meta_task_6d import toFlags
+from dynamic_graph.sot.dyninv import TaskInequality, TaskJointLimits
+from dynamic_graph.sot.core.meta_tasks_kine import MetaTaskKine6d
+from dynamic_graph.sot.dyninv import SolverKine
+robot = youbot('youbot', device=RobotSimu('youbot'))
+dimension = robot.dynamic.getDimension()
+robot.device.resize (dimension)
+from dynamic_graph.ros import Ros
+ros = Ros(robot)
+task_waist_metakine=MetaTaskKine6d('task_waist_metakine',robot.dynamic,'base_joint','base_joint')
+goal_waist = ((1.,0,0,-0.2),(0,1.,0,-0.0),(0,0,1.,0),(0,0,0,1.),)
+#task_waist_metakine.feature.selec.value = '111111'#RzRyRxTzTyTx
+task_waist_metakine.gain.setConstant(1)
+task_waist_metakine.featureDes.position.value = goal_waist
+solver = SolverKine('sot_solver')
+solver.setSize (robot.dynamic.getDimension())
+robot.device.resize (robot.dynamic.getDimension())
+solver.push (task_waist_metakine.task.name)
+plug (solver.control,robot.device.control)
+
 '''
 
 

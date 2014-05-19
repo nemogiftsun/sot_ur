@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<launch>
+  <param name="robot_description" command="$(find xacro)/xacro.py '$(find ur_description)/urdf/ur5_robot.urdf.xacro'" />
+  <param name="use_gui" value="true"/>
+  <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" ></node>
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher" />
+
+<!-- start gazebo and load environment 
+  <include file="$(find sot_ur)/launch/emptyworld.launch" />
+ 
+   <node name="gazebo_ur_model" pkg="gazebo" type="spawn_model" args="-urdf -param robot_description -model ur5 -wait world -x 0.0 -y 0.0 -z 0.1" respawn="false" output="screen" />-->
+
+
+ 
+</launch>

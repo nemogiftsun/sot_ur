@@ -10,6 +10,13 @@ class AbstractMobileRobot(object):
     AdditionalFrames = []   
     name = None
     initPosition = None
+    tracer = None
+    tracerSize = 2**20
+    autoRecomputedSignals = []
+    tracedSignals = {
+        'dynamic': ["position", "velocity"],
+        'device': ['control', 'state']
+        }
     # initialize robot    
     def initializeRobot(self):
         if not self.dynamic:
@@ -57,6 +64,25 @@ class AbstractMobileRobot(object):
                 self.device.after.rmSignal(s)
             self.tracer = None
 
+    def initializeTracer(self,robotname):
+
+        self.tracer = 0
+        self.tracer = TracerRealTime('trace')
+        self.tracer.setBufferSize(self.tracerSize)
+        self.tracer.open(robotname,'dg_','.dat')
+        # Recompute trace.triger at each iteration to enable tracing.
+        self.device.after.addSignal('{0}.triger'.format(self.tracer.name))
+
+    def traceDefaultSignals (self):
+        # Geometry / operational points
+        for s in self.OperationalPoints + self.tracedSignals['dynamic']:
+            self.addTrace(self.dynamic.name, s)
+        # Device
+        for s in self.tracedSignals['device']:
+            self.addTrace(self.device.name, s)
+        if type(self.device) != RobotSimu:
+            self.addTrace(self.device.name, 'robotState')
+
     # const and deconst
     def __init__(self, name, tracer = None):
         self.name = name
@@ -65,9 +91,9 @@ class AbstractMobileRobot(object):
             self.tracer = tracer
 
     def __del__(self):
-        #if self.tracer:
-        #    self.stopTracer()
-        a =2
+        if self.tracer:
+            self.stopTracer()
+
 
 class Ur(AbstractMobileRobot):
     initPosition = [0,0,0,0,0,0,0,0,0,0,0,0]

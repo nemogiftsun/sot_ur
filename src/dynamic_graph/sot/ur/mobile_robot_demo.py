@@ -5,7 +5,7 @@ from dynamic_graph.sot.core import RobotSimu, FeaturePosition, Task, SOT
 from dynamic_graph.tracer_real_time import TracerRealTime
 from dynamic_graph.tools import addTrace
 import rospy
-from dynamic_graph.sot.ur.mobile_robot import Ur
+from dynamic_graph.sot.dynamics.mobile_robot import Ur
 
 
 
